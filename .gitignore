@@ -1,0 +1,6 @@
+nodered-data/flows_cred.json
+nodered-data/node_modules/
+nodered-data/.npm/
+mosquitto/data/
+mosquitto/log/
+.env
