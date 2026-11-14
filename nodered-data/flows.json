@@ -1,0 +1,260 @@
+[
+    {
+        "id": "e3eaf822aa1c93b7",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "sim_tab",
+        "type": "tab",
+        "label": "Simulador ESP32",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "7913972b41f7405e",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "mosquitto",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "sim_broker",
+        "type": "mqtt-broker",
+        "name": "Mosquitto",
+        "broker": "mosquitto",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "01cc0c8dc893dc6b",
+        "type": "mqtt out",
+        "z": "e3eaf822aa1c93b7",
+        "name": "",
+        "topic": "estufa/sensores/temperatura_interior",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "7913972b41f7405e",
+        "x": 530,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "b36071fcbbc03488",
+        "type": "mqtt in",
+        "z": "e3eaf822aa1c93b7",
+        "name": "",
+        "topic": "estufa/sensores/#",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "7913972b41f7405e",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 190,
+        "y": 360,
+        "wires": [
+            [
+                "5262ba97efde9d2a"
+            ]
+        ]
+    },
+    {
+        "id": "8b2944abc8208824",
+        "type": "inject",
+        "z": "e3eaf822aa1c93b7",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"valor\": 24.5}",
+        "payloadType": "json",
+        "x": 190,
+        "y": 240,
+        "wires": [
+            [
+                "01cc0c8dc893dc6b"
+            ]
+        ]
+    },
+    {
+        "id": "5262ba97efde9d2a",
+        "type": "debug",
+        "z": "e3eaf822aa1c93b7",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 440,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "sim_inject",
+        "type": "inject",
+        "z": "sim_tab",
+        "name": "A cada 5 s",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 80,
+        "wires": [
+            [
+                "sim_func"
+            ]
+        ]
+    },
+    {
+        "id": "sim_func",
+        "type": "function",
+        "z": "sim_tab",
+        "name": "Gerar sensores",
+        "func": "const s = context.get('s') || {ti:24, te:18, ha:60, hs:45, ch:0, nt:80};\nconst passo = (v, d, min, max) => Math.min(max, Math.max(min, v + (Math.random()*2-1)*d));\ns.ti = passo(s.ti, 0.4, 10, 40);\ns.te = passo(s.te, 0.3, 0, 35);\ns.ha = passo(s.ha, 1.5, 30, 95);\ns.hs = passo(s.hs, 1, 10, 90);\nif (s.ch > 0) { s.ch = Math.max(0, s.ch - 10); }\nelse if (Math.random() < 0.05) { s.ch = 60 + Math.round(Math.random()*40); }\ns.nt = passo(s.nt, 1, 0, 100);\ncontext.set('s', s);\nconst r = x => Math.round(x*10)/10;\nconst mk = (t, v) => ({topic: 'estufa/sensores/' + t, payload: {valor: v}});\nreturn [[\n  mk('temperatura_interior', r(s.ti)),\n  mk('temperatura_exterior', r(s.te)),\n  mk('humidade_ar', r(s.ha)),\n  mk('humidade_solo', r(s.hs)),\n  mk('chuva', Math.round(s.ch)),\n  mk('nivel_tanque', r(s.nt))\n]];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 80,
+        "wires": [
+            [
+                "sim_mqtt"
+            ]
+        ]
+    },
+    {
+        "id": "sim_mqtt",
+        "type": "mqtt out",
+        "z": "sim_tab",
+        "name": "",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "sim_broker",
+        "x": 560,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "sim_in",
+        "type": "mqtt in",
+        "z": "sim_tab",
+        "name": "",
+        "topic": "estufa/sensores/#",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "sim_broker",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 150,
+        "y": 180,
+        "wires": [
+            [
+                "sim_debug"
+            ]
+        ]
+    },
+    {
+        "id": "sim_debug",
+        "type": "debug",
+        "z": "sim_tab",
+        "name": "sensores",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 340,
+        "y": 180,
+        "wires": []
+    }
+]
