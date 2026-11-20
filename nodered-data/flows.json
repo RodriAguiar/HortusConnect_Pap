@@ -1,13 +1,5 @@
 [
     {
-        "id": "e3eaf822aa1c93b7",
-        "type": "tab",
-        "label": "Flow 1",
-        "disabled": false,
-        "info": "",
-        "env": []
-    },
-    {
         "id": "sim_tab",
         "type": "tab",
         "label": "Simulador ESP32",
@@ -15,35 +7,20 @@
         "info": ""
     },
     {
-        "id": "7913972b41f7405e",
-        "type": "mqtt-broker",
-        "name": "",
-        "broker": "mosquitto",
-        "port": 1883,
-        "clientid": "",
-        "autoConnect": true,
-        "usetls": false,
-        "protocolVersion": 4,
-        "keepalive": 60,
-        "cleansession": true,
-        "autoUnsubscribe": true,
-        "birthTopic": "",
-        "birthQos": "0",
-        "birthRetain": "false",
-        "birthPayload": "",
-        "birthMsg": {},
-        "closeTopic": "",
-        "closeQos": "0",
-        "closeRetain": "false",
-        "closePayload": "",
-        "closeMsg": {},
-        "willTopic": "",
-        "willQos": "0",
-        "willRetain": "false",
-        "willPayload": "",
-        "willMsg": {},
-        "userProps": "",
-        "sessionExpiry": ""
+        "id": "3dc5621d6220e1b5",
+        "type": "tab",
+        "label": "Devolver Valores",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "f6667c613d2c9cbf",
+        "type": "tab",
+        "label": "Bomba de Water",
+        "disabled": false,
+        "info": "",
+        "env": []
     },
     {
         "id": "sim_broker",
@@ -75,86 +52,6 @@
         "willMsg": {},
         "userProps": "",
         "sessionExpiry": ""
-    },
-    {
-        "id": "01cc0c8dc893dc6b",
-        "type": "mqtt out",
-        "z": "e3eaf822aa1c93b7",
-        "name": "",
-        "topic": "estufa/sensores/temperatura_interior",
-        "qos": "",
-        "retain": "",
-        "respTopic": "",
-        "contentType": "",
-        "userProps": "",
-        "correl": "",
-        "expiry": "",
-        "broker": "7913972b41f7405e",
-        "x": 530,
-        "y": 240,
-        "wires": []
-    },
-    {
-        "id": "b36071fcbbc03488",
-        "type": "mqtt in",
-        "z": "e3eaf822aa1c93b7",
-        "name": "",
-        "topic": "estufa/sensores/#",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "7913972b41f7405e",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 190,
-        "y": 360,
-        "wires": [
-            [
-                "5262ba97efde9d2a"
-            ]
-        ]
-    },
-    {
-        "id": "8b2944abc8208824",
-        "type": "inject",
-        "z": "e3eaf822aa1c93b7",
-        "name": "",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "{\"valor\": 24.5}",
-        "payloadType": "json",
-        "x": 190,
-        "y": 240,
-        "wires": [
-            [
-                "01cc0c8dc893dc6b"
-            ]
-        ]
-    },
-    {
-        "id": "5262ba97efde9d2a",
-        "type": "debug",
-        "z": "e3eaf822aa1c93b7",
-        "name": "debug 1",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 440,
-        "y": 360,
-        "wires": []
     },
     {
         "id": "sim_inject",
@@ -255,6 +152,196 @@
         "statusType": "auto",
         "x": 340,
         "y": 180,
+        "wires": []
+    },
+    {
+        "id": "313e100db7e96073",
+        "type": "mqtt in",
+        "z": "3dc5621d6220e1b5",
+        "name": "",
+        "topic": "estufa/sensores/#",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "sim_broker",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 280,
+        "y": 180,
+        "wires": [
+            [
+                "607dc96718290b7f"
+            ]
+        ]
+    },
+    {
+        "id": "607dc96718290b7f",
+        "type": "json",
+        "z": "3dc5621d6220e1b5",
+        "name": "",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 470,
+        "y": 180,
+        "wires": [
+            [
+                "6aa1858c4d5172cf"
+            ]
+        ]
+    },
+    {
+        "id": "6aa1858c4d5172cf",
+        "type": "function",
+        "z": "3dc5621d6220e1b5",
+        "name": "Guardar leituras",
+        "func": "\nlet sensores = flow.get(\"sensores\") || {};\n\nlet nomeSensor = msg.topic.split(\"/\").pop();\n\nsensores[nomeSensor] = msg.payload.valor;\n\nflow.set(\"sensores\", sensores);\n\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cf1ca5e27cb52b38",
+        "type": "function",
+        "z": "3dc5621d6220e1b5",
+        "name": "Consultar sensores",
+        "func": "msg.payload = flow.get(\"sensores\") || {};\n\nmsg.headers = {\n    \"Content-Type\": \"application/json\"\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 400,
+        "wires": [
+            [
+                "1e55177fdc0d89e5"
+            ]
+        ]
+    },
+    {
+        "id": "01ccd88cf991e3a6",
+        "type": "http in",
+        "z": "3dc5621d6220e1b5",
+        "name": "",
+        "url": "/api/sensores",
+        "method": "get",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 290,
+        "y": 400,
+        "wires": [
+            [
+                "cf1ca5e27cb52b38"
+            ]
+        ]
+    },
+    {
+        "id": "1e55177fdc0d89e5",
+        "type": "http response",
+        "z": "3dc5621d6220e1b5",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 770,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "81932e28285b8660",
+        "type": "http in",
+        "z": "f6667c613d2c9cbf",
+        "name": "",
+        "url": "/api/controlo/bomba",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 190,
+        "y": 340,
+        "wires": [
+            [
+                "e3da8d8033709413"
+            ]
+        ]
+    },
+    {
+        "id": "e3da8d8033709413",
+        "type": "function",
+        "z": "f6667c613d2c9cbf",
+        "name": "Comando bomba",
+        "func": "// Guardar a mensagem original\nlet pedidoOriginal = msg;\n\n// Validar o pedido\nif (typeof msg.payload.estado !== \"boolean\") {\n    msg.statusCode = 400;\n    msg.payload = {\n        erro: \"O campo estado deve ser true ou false.\"\n    };\n\n    return [null, msg];\n}\n\n// Criar mensagem MQTT\nlet mensagemMQTT = {\n    topic: \"estufa/atuadores/bomba\",\n    payload: JSON.stringify({\n        estado: msg.payload.estado\n    })\n};\n\n// Preparar resposta HTTP\nmsg.statusCode = 200;\nmsg.headers = {\n    \"Content-Type\": \"application/json\"\n};\n\nmsg.payload = {\n    sucesso: true,\n    atuador: \"bomba\",\n    estado: pedidoOriginal.payload.estado\n};\n\n// Enviar MQTT e resposta HTTP\nreturn [mensagemMQTT, msg];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 340,
+        "wires": [
+            [
+                "759e7602d7859be1",
+                "ec785faf87d1730c",
+                "ef8db8120e55fb74"
+            ]
+        ]
+    },
+    {
+        "id": "759e7602d7859be1",
+        "type": "mqtt out",
+        "z": "f6667c613d2c9cbf",
+        "name": "",
+        "topic": "",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "sim_broker",
+        "x": 670,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "ec785faf87d1730c",
+        "type": "http response",
+        "z": "f6667c613d2c9cbf",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 670,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "ef8db8120e55fb74",
+        "type": "debug",
+        "z": "f6667c613d2c9cbf",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 560,
         "wires": []
     }
 ]
