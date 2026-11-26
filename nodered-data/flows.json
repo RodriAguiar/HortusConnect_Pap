@@ -23,6 +23,14 @@
         "env": []
     },
     {
+        "id": "a1e9b2adf7e249a1",
+        "type": "tab",
+        "label": "Ventoinha",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "sim_broker",
         "type": "mqtt-broker",
         "name": "Mosquitto",
@@ -292,8 +300,8 @@
         "y": 340,
         "wires": [
             [
-                "759e7602d7859be1",
-                "ec785faf87d1730c"
+                "ec785faf87d1730c",
+                "759e7602d7859be1"
             ]
         ]
     },
@@ -324,6 +332,74 @@
         "headers": {},
         "x": 670,
         "y": 460,
+        "wires": []
+    },
+    {
+        "id": "121c8f10f4497df5",
+        "type": "http in",
+        "z": "a1e9b2adf7e249a1",
+        "name": "",
+        "url": "/api/controlo/ventoinha",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 260,
+        "y": 360,
+        "wires": [
+            [
+                "11574ec87bb3a4d6"
+            ]
+        ]
+    },
+    {
+        "id": "11574ec87bb3a4d6",
+        "type": "function",
+        "z": "a1e9b2adf7e249a1",
+        "name": "Comando ventoinha",
+        "func": "\nconst estado = msg.payload.estado;\n\n// Validar o comando recebido\nif (typeof estado !== \"boolean\") {\n    msg.statusCode = 400;\n    msg.headers = {\n        \"Content-Type\": \"application/json\"\n    };\n\n    msg.payload = {\n        sucesso: false,\n        erro: \"O estado deve ser true ou false.\"\n    };\n\n    node.send([msg, null], false);\n    return null;\n}\n\n// Criar mensagem independente para MQTT\nconst mqttMsg = {\n    topic: \"estufa/atuadores/ventoinha\",\n    payload: JSON.stringify({\n        estado: estado\n    })\n};\n\n// Preparar resposta HTTP original\nmsg.statusCode = 200;\nmsg.headers = {\n    \"Content-Type\": \"application/json\"\n};\n\nmsg.payload = {\n    sucesso: true,\n    atuador: \"ventoinha\",\n    estado: estado\n};\n\n// Saída 1: HTTP Response\n// Saída 2: MQTT Out\nnode.send([msg, mqttMsg], false);\n\nreturn null;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 360,
+        "wires": [
+            [
+                "7448f3577d2752c2",
+                "4eaf16bace38a7fb"
+            ]
+        ]
+    },
+    {
+        "id": "7448f3577d2752c2",
+        "type": "mqtt out",
+        "z": "a1e9b2adf7e249a1",
+        "name": "",
+        "topic": "",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "sim_broker",
+        "x": 730,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "4eaf16bace38a7fb",
+        "type": "http response",
+        "z": "a1e9b2adf7e249a1",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 730,
+        "y": 480,
         "wires": []
     }
 ]
