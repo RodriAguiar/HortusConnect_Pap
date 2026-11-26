@@ -281,7 +281,7 @@
         "type": "function",
         "z": "f6667c613d2c9cbf",
         "name": "Comando bomba",
-        "func": "// Guardar a mensagem original\nlet pedidoOriginal = msg;\n\n// Validar o pedido\nif (typeof msg.payload.estado !== \"boolean\") {\n    msg.statusCode = 400;\n    msg.payload = {\n        erro: \"O campo estado deve ser true ou false.\"\n    };\n\n    return [null, msg];\n}\n\n// Criar mensagem MQTT\nlet mensagemMQTT = {\n    topic: \"estufa/atuadores/bomba\",\n    payload: JSON.stringify({\n        estado: msg.payload.estado\n    })\n};\n\n// Preparar resposta HTTP\nmsg.statusCode = 200;\nmsg.headers = {\n    \"Content-Type\": \"application/json\"\n};\n\nmsg.payload = {\n    sucesso: true,\n    atuador: \"bomba\",\n    estado: pedidoOriginal.payload.estado\n};\n\n// Enviar MQTT e resposta HTTP\nreturn [mensagemMQTT, msg];",
+        "func": "\nconst estado = msg.payload.estado;\n\n// Validar o comando\nif (typeof estado !== \"boolean\") {\n    msg.statusCode = 400;\n    msg.headers = {\n        \"Content-Type\": \"application/json\"\n    };\n    msg.payload = {\n        sucesso: false,\n        erro: \"O estado deve ser true ou false.\"\n    };\n\n    // Enviar a mensagem HTTP original sem clonagem\n    node.send([msg, null], false);\n    return null;\n}\n\n// Criar uma mensagem MQTT independente\nconst mqttMsg = {\n    topic: \"estufa/atuadores/bomba\",\n    payload: JSON.stringify({\n        estado: estado\n    })\n};\n\n// Preparar a resposta HTTP na mensagem original\nmsg.statusCode = 200;\nmsg.headers = {\n    \"Content-Type\": \"application/json\"\n};\n\nmsg.payload = {\n    sucesso: true,\n    atuador: \"bomba\",\n    estado: estado\n};\n\n// Saída 1: HTTP original (sem clonagem)\n// Saída 2: mensagem MQTT\nnode.send([msg, mqttMsg], false);\n\nreturn null;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -293,8 +293,7 @@
         "wires": [
             [
                 "759e7602d7859be1",
-                "ec785faf87d1730c",
-                "ef8db8120e55fb74"
+                "ec785faf87d1730c"
             ]
         ]
     },
@@ -325,23 +324,6 @@
         "headers": {},
         "x": 670,
         "y": 460,
-        "wires": []
-    },
-    {
-        "id": "ef8db8120e55fb74",
-        "type": "debug",
-        "z": "f6667c613d2c9cbf",
-        "name": "debug 1",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 680,
-        "y": 560,
         "wires": []
     }
 ]
